@@ -28,4 +28,14 @@ public class Event {
     @Enumerated(EnumType.STRING)
     private EventStatus eventStatus = EventStatus.DRAFT;
 
+    public void update(){
+        // Update free
+        this.free = this.basePrice == 0 && this.maxPrice == 0;
+        // Update offline
+        this.offline = this.location != null && !this.location.isBlank(); // isBlank 자동 트림, space로 확인되는 문자 다 확인하여 BLANK 인지 확인
+
+    }
+
+
+
 }
