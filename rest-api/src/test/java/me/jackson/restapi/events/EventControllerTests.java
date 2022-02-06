@@ -117,7 +117,7 @@ public class EventControllerTests {
         EventDto event = EventDto.builder()
                 .name("Spring")
                 .description("REST API Development with Spring")
-                .beginEnrollmentDateTime(LocalDateTime.of(2018, 11, 23,14,21))
+                .beginEnrollmentDateTime(LocalDateTime.of(2018, 11, 27,14,21))
                 .closeEnrollmentDateTime(LocalDateTime.of(2018, 11, 24,14,21))
                 .beginEventDateTime(LocalDateTime.of(2018, 11, 25,14,21))
                 .endEventDateTime(LocalDateTime.of(2018, 11, 26,14,21))
@@ -131,6 +131,10 @@ public class EventControllerTests {
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .content(objectMapper.writeValueAsString(event)))
                 .andDo(print())
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$[0].objectName").exists())
+                .andExpect(jsonPath("$[0].defaultMessage").exists())
+                .andExpect(jsonPath("$[0].code").exists())
+        ;
     }
 }
