@@ -1,6 +1,7 @@
 package me.jackson.restapi.events;
 
 import lombok.RequiredArgsConstructor;
+import me.jackson.restapi.common.ErrorResource;
 import org.modelmapper.ModelMapper;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
@@ -33,13 +34,13 @@ public class EventController {
         // Errors 객체는 BeanSerializer로 Serialization이 되지 않는다 (자바 빈 스펙을 따르지 않음)
         // ModelMapper는 리플렉션을 사용하기 때문에 조금 성능은 직접 할당해주는 것보다 느릴 수 있다
         if(errors.hasErrors()){
-            return ResponseEntity.badRequest().body(errors);
+            return badRequest(errors);
         }
 
         eventValidator.validate(eventDto, errors);
 
         if (errors.hasErrors()){
-            return ResponseEntity.badRequest().body(errors);
+            return badRequest(errors);
         }
 
         Event event = modelMapper.map(eventDto, Event.class);
@@ -52,6 +53,10 @@ public class EventController {
         eventResource.add(selfLinkBuilder.withRel("update-event"));
         eventResource.add(new Link("/docs/index.html#resources-events-create").withRel("profile"));
         return ResponseEntity.created(createdUri).body(eventResource);
+    }
+
+    private ResponseEntity<ErrorResource> badRequest(Errors errors) {
+        return ResponseEntity.badRequest().body(new ErrorResource(errors));
     }
 
 }
