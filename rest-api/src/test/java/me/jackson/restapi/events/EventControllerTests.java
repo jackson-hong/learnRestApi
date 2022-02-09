@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -35,6 +36,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc // Spring Boot Test 에서 MockMvc를 계속 사용하기 위한 어노테이션
 @AutoConfigureRestDocs // REST docs를 만들어주는 어노테이션 (boot)
 @Import(RestDocsConfiguration.class)
+@ActiveProfiles("test") // test pofile이라고 명시할 경우 기존 어노테이션에서 쓰는 application.properties + test.properties로 봐야함
 public class EventControllerTests {
 
     // mockMvc를 단위테스트라고 볼 수는 없다
@@ -80,14 +82,12 @@ public class EventControllerTests {
                 .andExpect(jsonPath("free").value(false))
                 .andExpect(jsonPath("offline").value(true))
                 .andExpect(jsonPath("eventStatus").value(EventStatus.DRAFT.name()))
-                .andExpect(jsonPath("_links.self").exists())
-                .andExpect(jsonPath("_links.query-events").exists())
-                .andExpect(jsonPath("_links.update-event").exists())
                 .andDo(document("create-event"
                         ,links(
                             linkWithRel("self").description("link to self"),
                             linkWithRel("query-events").description("link to query"),
-                            linkWithRel("update-event").description("link to update")
+                            linkWithRel("update-event").description("link to update"),
+                            linkWithRel("profile").description("link to profile")
                         ),
                         requestHeaders(
                             headerWithName(HttpHeaders.ACCEPT).description("accept header"),
@@ -124,7 +124,11 @@ public class EventControllerTests {
                                 fieldWithPath("limitOfEnrollment").description("limit of enrolmment"),
                                 fieldWithPath("free").description("it tells if this event is free or not"),
                                 fieldWithPath("offline").description("it tells if this event is offline event or not"),
-                                fieldWithPath("eventStatus").description("event status")
+                                fieldWithPath("eventStatus").description("event status"),
+                                fieldWithPath("_links.self.href").description("link to self"),
+                                fieldWithPath("_links.query-events.href").description("link to query event list"),
+                                fieldWithPath("_links.update-event.href").description("link to update existing event"),
+                                fieldWithPath("_links.profile.href").description("link to profile")
                         )
                 ))
         ;
