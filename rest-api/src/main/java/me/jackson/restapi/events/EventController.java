@@ -3,6 +3,7 @@ package me.jackson.restapi.events;
 import lombok.RequiredArgsConstructor;
 import me.jackson.restapi.common.ErrorResource;
 import org.modelmapper.ModelMapper;
+import org.springframework.core.env.Environment;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,7 @@ public class EventController {
     private final EventRepository eventRepository;
     private final ModelMapper modelMapper;
     private final EventValidator eventValidator;
+    private final Environment environment;
 
     @PostMapping
     public ResponseEntity createEvent(@RequestBody @Valid EventDto eventDto, Errors errors) { // 받기로한 값들만 받아옴
@@ -35,7 +37,6 @@ public class EventController {
         if(errors.hasErrors()){
             return badRequest(errors);
         }
-
         eventValidator.validate(eventDto, errors);
 
         if (errors.hasErrors()){
