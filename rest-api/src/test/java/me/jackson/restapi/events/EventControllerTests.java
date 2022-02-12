@@ -2,9 +2,9 @@ package me.jackson.restapi.events;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import me.jackson.restapi.common.BaseControllerTest;
 import me.jackson.restapi.common.RestDocsConfiguration;
 import me.jackson.restapi.common.TestDescription;
-import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.modelmapper.ModelMapper;
@@ -32,27 +32,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-//이 친구는 머지
-@RunWith(SpringRunner.class)
-@SpringBootTest
-@AutoConfigureMockMvc // Spring Boot Test 에서 MockMvc를 계속 사용하기 위한 어노테이션
-@AutoConfigureRestDocs // REST docs를 만들어주는 어노테이션 (boot)
-@Import(RestDocsConfiguration.class)
-@ActiveProfiles("test") // test pofile이라고 명시할 경우 기존 어노테이션에서 쓰는 application-test.properties + test.properties로 봐야함
-public class EventControllerTests {
-
-    // mockMvc를 단위테스트라고 볼 수는 없다
-    @Autowired
-    MockMvc mockMvc;
-
-    @Autowired
-    ObjectMapper objectMapper;
+public class EventControllerTests extends BaseControllerTest {
 
     @Autowired
     EventRepository eventRepository;
-
-    @Autowired
-    ModelMapper modelMapper;
 
 //    @MockBean
 //    EventRepository eventRepository;

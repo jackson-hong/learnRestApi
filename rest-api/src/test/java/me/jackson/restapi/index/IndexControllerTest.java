@@ -1,6 +1,7 @@
 package me.jackson.restapi.index;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import me.jackson.restapi.common.BaseControllerTest;
 import me.jackson.restapi.common.RestDocsConfiguration;
 import me.jackson.restapi.common.TestDescription;
 import me.jackson.restapi.events.Event;
@@ -25,19 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
-@AutoConfigureMockMvc // Spring Boot Test 에서 MockMvc를 계속 사용하기 위한 어노테이션
-@AutoConfigureRestDocs // REST docs를 만들어주는 어노테이션 (boot)
-@Import(RestDocsConfiguration.class)
-@ActiveProfiles("test")
-public class IndexControllerTest {
-
-    @Autowired
-    MockMvc mockMvc;
-
-    @Autowired
-    ObjectMapper objectMapper;
+public class IndexControllerTest extends BaseControllerTest {
 
     @Test
     public void index() throws Exception {

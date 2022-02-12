@@ -1,6 +1,7 @@
 package me.jackson.restapi.events;
 
 import lombok.*;
+import me.jackson.restapi.accounts.Account;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -27,6 +28,9 @@ public class Event {
 
     @Enumerated(EnumType.STRING)
     private EventStatus eventStatus = EventStatus.DRAFT;
+
+    @ManyToOne
+    private Account manager;
 
     public void update(){
         // Update free
