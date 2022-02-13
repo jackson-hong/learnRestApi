@@ -1,11 +1,14 @@
 package me.jackson.restapi.configs;
 
+import lombok.RequiredArgsConstructor;
 import me.jackson.restapi.accounts.AccountService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -15,13 +18,12 @@ import org.springframework.security.oauth2.provider.token.store.InMemoryTokenSto
 
 @Configuration
 @EnableWebSecurity // autoConfig가 더이상 적용되지 않음
+@RequiredArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    @Autowired
-    AccountService accountService;
+    private final AccountService accountService;
 
-    @Autowired
-    PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
     @Bean
     TokenStore tokenStore(){
@@ -29,8 +31,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Override
-    public void setAuthenticationConfiguration(AuthenticationConfiguration authenticationConfiguration) {
-        super.setAuthenticationConfiguration(authenticationConfiguration);
+    @Bean
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        return super.authenticationManagerBean();
     }
 
     @Override
@@ -42,5 +45,24 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(WebSecurity web) throws Exception {
         web.ignoring().mvcMatchers("/docs/index.html");
+        web.ignoring().requestMatchers(PathRequest.toStaticResources().atCommonLocations());
+    }
+
+//    @Override
+//    protected void configure(HttpSecurity http) throws Exception {
+//        http.authorizeRequests()
+//                .mvcMatchers("/docs/index.html").anonymous()
+//                .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).anonymous();
+//    }
+
+    protected void configure(HttpSecurity http) throws Exception {
+        http
+            .anonymous()
+                .and()
+            .formLogin()
+                .and()
+            .authorizeRequests()
+                .mvcMatchers(HttpMethod.GET, "/api/**").authenticated()
+                .anyRequest().authenticated();
     }
 }
