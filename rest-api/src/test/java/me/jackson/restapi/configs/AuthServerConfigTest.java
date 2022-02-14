@@ -28,13 +28,6 @@ public class AuthServerConfigTest extends BaseControllerTest {
         // Given
         String username = "jackson@email.com";
         String password = "jackson12345";
-//        Account jackson = Account.builder()
-//                .email(username)
-//                .password(password)
-//                .roles(Set.of(AccountRole.ADMIN, AccountRole.USER))
-//                .build();
-//
-//        accountService.saveAccount(jackson);
 
         String clientId="myApp";
         String clientSecret = "pass";
