@@ -3,6 +3,7 @@ package me.jackson.restapi.configs;
 import me.jackson.restapi.accounts.Account;
 import me.jackson.restapi.accounts.AccountRole;
 import me.jackson.restapi.accounts.AccountService;
+import me.jackson.restapi.common.AppProperties;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
@@ -33,16 +34,24 @@ public class AppConfig {
             @Autowired
             AccountService accountService;
 
+            @Autowired
+            AppProperties appProperties;
+
             @Override
             public void run(ApplicationArguments args) throws Exception {
-                String password = "jackson12345";
-                String email = "jackson@email.com";
-                Account account = Account.builder()
-                        .email(email)
-                        .password(password)
+                Account admin = Account.builder()
+                        .email(appProperties.getAdminUsername())
+                        .password(appProperties.getAdminPassword())
                         .roles(Set.of(AccountRole.ADMIN, AccountRole.USER))
                         .build();
-                accountService.saveAccount(account);
+                accountService.saveAccount(admin);
+
+                Account user = Account.builder()
+                        .email(appProperties.getUserUsername())
+                        .password(appProperties.getUserPassword())
+                        .roles(Set.of(AccountRole.USER))
+                        .build();
+                accountService.saveAccount(user);
             }
         };
     }

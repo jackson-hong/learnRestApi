@@ -4,6 +4,7 @@ import junit.framework.TestCase;
 import me.jackson.restapi.accounts.Account;
 import me.jackson.restapi.accounts.AccountRole;
 import me.jackson.restapi.accounts.AccountService;
+import me.jackson.restapi.common.AppProperties;
 import me.jackson.restapi.common.BaseControllerTest;
 import me.jackson.restapi.common.TestDescription;
 import org.junit.Test;
@@ -22,19 +23,17 @@ public class AuthServerConfigTest extends BaseControllerTest {
     @Autowired
     AccountService accountService;
 
+    @Autowired
+    AppProperties appProperties;
+
     @Test
     @TestDescription("인증 토큰을 발급 받는 테스트")
     public void authToken() throws Exception {
         // Given
-        String username = "jackson@email.com";
-        String password = "jackson12345";
-
-        String clientId="myApp";
-        String clientSecret = "pass";
         mockMvc.perform(post("/oauth/token")
-            .with(httpBasic(clientId, clientSecret))
-            .param("username", username)
-            .param("password", password)
+            .with(httpBasic(appProperties.getClientId(), appProperties.getClientSecret()))
+            .param("username", appProperties.getUserUsername())
+            .param("password", appProperties.getUserPassword())
             .param("grant_type","password")
         )
                 .andDo(print())

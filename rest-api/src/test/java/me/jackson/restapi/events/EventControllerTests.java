@@ -1,6 +1,9 @@
 package me.jackson.restapi.events;
 
 
+import me.jackson.restapi.accounts.Account;
+import me.jackson.restapi.accounts.AccountRepository;
+import me.jackson.restapi.common.AppProperties;
 import me.jackson.restapi.common.BaseControllerTest;
 import me.jackson.restapi.common.TestDescription;
 import org.junit.Test;
@@ -29,12 +32,18 @@ public class EventControllerTests extends BaseControllerTest {
     @Autowired
     EventRepository eventRepository;
 
+    @Autowired
+    AccountRepository accountRepository;
+
 //    @MockBean
 //    EventRepository eventRepository;
     // mocking 된 객체에서 메소드를 사용할 경우 반환되는 값은 전부 Null
 
     // 입력값을 필요 없는 값까지 넘어왔을 때
     // bad request vs 무시
+
+    @Autowired
+    AppProperties appProperties;
 
     @Test
     @TestDescription("정상적으로 이벤트를 생성하는 테스트")
@@ -213,6 +222,30 @@ public class EventControllerTests extends BaseControllerTest {
     }
 
     @Test
+    @TestDescription("30개의 이벤트를 10개씩 두번째 페이지 조회하기")
+    public void queryEventsWithAuth() throws Exception {
+        // Given
+        IntStream.range(0, 30).forEach(this::generateEvent);
+
+        // When
+        mockMvc.perform(get("/api/events")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer "+ getAccessToken())
+                .param("page","1")
+                .param("size", "10")
+                .param("sort", "name,DESC")
+        )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("page").exists())
+                .andExpect(jsonPath("_embedded.eventList[0]._links.self").exists())
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.profile").exists())
+                .andExpect(jsonPath("_links.create-event").exists())
+                .andDo(document("query-events"))
+        ;
+    }
+
+    @Test
     @TestDescription("기존의 이벤트를 하나 조회한다")
     public void getEvent() throws Exception {
         // Given
@@ -250,7 +283,6 @@ public class EventControllerTests extends BaseControllerTest {
         // When & Then
         mockMvc.perform(put("/api/events/{id}", event.getId())
                         .header(HttpHeaders.AUTHORIZATION, "Bearer "+ getAccessToken())
-
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(objectMapper.writeValueAsString(eventDto))
         )
@@ -365,6 +397,8 @@ public class EventControllerTests extends BaseControllerTest {
 //    }
 
     public Event generateEvent(int index) {
+        Account admin = accountRepository.findByEmail(appProperties.getUserUsername()).get();
+
         Event event = Event.builder()
                 .name("event " + index)
                 .description("REST API Development with Spring")
@@ -378,6 +412,7 @@ public class EventControllerTests extends BaseControllerTest {
                 .free(false)
                 .offline(true)
                 .location("강남역 D2")
+                .manager(admin)
                 .build();
 
         return eventRepository.save(event);
@@ -385,15 +420,10 @@ public class EventControllerTests extends BaseControllerTest {
 
     private String getAccessToken() throws Exception {
         // Given
-        String username = "jackson@email.com";
-        String password = "jackson12345";
-
-        String clientId="myApp";
-        String clientSecret = "pass";
         ResultActions perform = mockMvc.perform(post("/oauth/token")
-                        .with(httpBasic(clientId, clientSecret))
-                        .param("username", username)
-                        .param("password", password)
+                        .with(httpBasic(appProperties.getClientId(), appProperties.getClientSecret()))
+                        .param("username", appProperties.getUserUsername())
+                        .param("password", appProperties.getUserPassword())
                         .param("grant_type","password")
                 );
         var response = perform.andReturn().getResponse().getContentAsString();
